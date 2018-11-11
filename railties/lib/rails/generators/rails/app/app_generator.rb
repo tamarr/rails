@@ -80,7 +80,6 @@ module Rails
       directory "app"
 
       keep_file "app/assets/images"
-      empty_directory_with_keep_file "app/assets/javascripts/channels" unless options[:skip_action_cable]
 
       keep_file  "app/controllers/concerns"
       keep_file  "app/models/concerns"
@@ -96,7 +95,7 @@ module Rails
     def bin_when_updating
       bin
 
-      if options[:skip_yarn]
+      if options[:skip_javascript]
         remove_file "bin/yarn"
       end
     end
@@ -260,7 +259,10 @@ module Rails
                                  desc: "Don't run bundle install"
 
       class_option :webpack, type: :string, default: nil,
-                             desc: "Preconfigure for app-like JavaScript with Webpack (options: #{WEBPACKS.join('/')})"
+                             desc: "Preconfigure Webpack with a particular framework (options: #{WEBPACKS.join('/')})"
+
+      class_option :skip_webpack_install, type: :boolean, default: false,
+                                          desc: "Don't run Webpack install"
 
       def initialize(*args)
         super
@@ -272,7 +274,7 @@ module Rails
         # Force sprockets and yarn to be skipped when generating API only apps.
         # Can't modify options hash as it's frozen by default.
         if options[:api]
-          self.options = options.merge(skip_sprockets: true, skip_javascript: true, skip_yarn: true).freeze
+          self.options = options.merge(skip_sprockets: true, skip_javascript: true).freeze
         end
       end
 
@@ -287,7 +289,7 @@ module Rails
         build(:gitignore)   unless options[:skip_git]
         build(:gemfile)     unless options[:skip_gemfile]
         build(:version_control)
-        build(:package_json) unless options[:skip_yarn]
+        build(:package_json) unless options[:skip_javascript]
       end
 
       def create_app_files
@@ -409,7 +411,7 @@ module Rails
 
       def delete_js_folder_skipping_javascript
         if options[:skip_javascript]
-          remove_dir "app/assets/javascripts"
+          remove_dir "app/javascript"
         end
       end
 
@@ -436,7 +438,7 @@ module Rails
 
       def delete_action_cable_files_skipping_action_cable
         if options[:skip_action_cable]
-          remove_file "app/assets/javascripts/cable.js"
+          remove_dir "app/javascript/channels"
           remove_dir "app/channels"
         end
       end
@@ -460,8 +462,8 @@ module Rails
         end
       end
 
-      def delete_bin_yarn_if_skip_yarn_option
-        remove_file "bin/yarn" if options[:skip_yarn]
+      def delete_bin_yarn
+        remove_file "bin/yarn" if options[:skip_javascript]
       end
 
       def finish_template
@@ -469,7 +471,8 @@ module Rails
       end
 
       public_task :apply_rails_template, :run_bundle
-      public_task :run_webpack, :generate_spring_binstubs
+      public_task :generate_bundler_binstub, :generate_spring_binstubs
+      public_task :run_webpack
 
       def run_after_bundle_callbacks
         @after_bundle_callbacks.each(&:call)
@@ -515,7 +518,7 @@ module Rails
       end
 
       def valid_const?
-        if app_const =~ /^\d/
+        if /^\d/.match?(app_const)
           raise Error, "Invalid application name #{original_app_name}. Please give a name which does not start with numbers."
         elsif RESERVED_NAMES.include?(original_app_name)
           raise Error, "Invalid application name #{original_app_name}. Please give a " \

@@ -36,10 +36,10 @@ files.
 ## Setup
 
 Active Storage uses two tables in your application’s database named
-`active_storage_blobs` and `active_storage_attachments`. After upgrading your
-application to Rails 5.2, run `rails active_storage:install` to generate a
-migration that creates these tables. Use `rails db:migrate` to run the
-migration.
+`active_storage_blobs` and `active_storage_attachments`. After creating a new
+application (or upgrading your application to Rails 5.2), run
+`rails active_storage:install` to generate a migration that creates these
+tables. Use `rails db:migrate` to run the migration.
 
 Declare Active Storage services in `config/storage.yml`. For each service your
 application uses, provide a name and the requisite configuration. The example
@@ -58,6 +58,8 @@ amazon:
   service: S3
   access_key_id: ""
   secret_access_key: ""
+  bucket: ""
+  region: "" # e.g. 'us-east-1'
 ```
 
 Tell Active Storage which service to use by setting
@@ -78,6 +80,14 @@ To use the Amazon S3 service in production, you add the following to
 ```ruby
 # Store files on Amazon S3.
 config.active_storage.service = :amazon
+```
+
+To use the test service when testing, you add the following to
+`config/environments/test.rb`:
+
+```ruby
+# Store uploaded files on the local file system in a temporary directory.
+config.active_storage.service = :test
 ```
 
 Continue reading for more information on the built-in service adapters (e.g.
@@ -174,7 +184,7 @@ google:
 Add the [`google-cloud-storage`](https://github.com/GoogleCloudPlatform/google-cloud-ruby/tree/master/google-cloud-storage) gem to your `Gemfile`:
 
 ```ruby
-gem "google-cloud-storage", "~> 1.8", require: false
+gem "google-cloud-storage", "~> 1.11", require: false
 ```
 
 ### Mirror Service
