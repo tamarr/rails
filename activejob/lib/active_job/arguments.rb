@@ -24,18 +24,20 @@ module ActiveJob
   module Arguments
     extend self
     # :nodoc:
-    TYPE_WHITELIST = [ NilClass, String, Integer, Float, BigDecimal, TrueClass, FalseClass ]
+    PERMITTED_TYPES = [ NilClass, String, Integer, Float, BigDecimal, TrueClass, FalseClass ]
 
-    # Serializes a set of arguments. Whitelisted types are returned
-    # as-is. Arrays/Hashes are serialized element by element.
-    # All other types are serialized using GlobalID.
+    # Serializes a set of arguments. Intrinsic types that can safely be
+    # serialized without mutation are returned as-is. Arrays/Hashes are
+    # serialized element by element. All other types are serialized using
+    # GlobalID.
     def serialize(arguments)
       arguments.map { |argument| serialize_argument(argument) }
     end
 
-    # Deserializes a set of arguments. Whitelisted types are returned
-    # as-is. Arrays/Hashes are deserialized element by element.
-    # All other types are deserialized using GlobalID.
+    # Deserializes a set of arguments. Intrinsic types that can safely be
+    # deserialized without mutation are returned as-is. Arrays/Hashes are
+    # deserialized element by element. All other types are deserialized using
+    # GlobalID.
     def deserialize(arguments)
       arguments.map { |argument| deserialize_argument(argument) }
     rescue
@@ -45,11 +47,11 @@ module ActiveJob
     private
 
       # :nodoc:
-      GLOBALID_KEY = "_aj_globalid".freeze
+      GLOBALID_KEY = "_aj_globalid"
       # :nodoc:
-      SYMBOL_KEYS_KEY = "_aj_symbol_keys".freeze
+      SYMBOL_KEYS_KEY = "_aj_symbol_keys"
       # :nodoc:
-      WITH_INDIFFERENT_ACCESS_KEY = "_aj_hash_with_indifferent_access".freeze
+      WITH_INDIFFERENT_ACCESS_KEY = "_aj_hash_with_indifferent_access"
       # :nodoc:
       OBJECT_SERIALIZER_KEY = "_aj_serialized"
 
@@ -60,11 +62,11 @@ module ActiveJob
         OBJECT_SERIALIZER_KEY, OBJECT_SERIALIZER_KEY.to_sym,
         WITH_INDIFFERENT_ACCESS_KEY, WITH_INDIFFERENT_ACCESS_KEY.to_sym,
       ]
-      private_constant :RESERVED_KEYS
+      private_constant :RESERVED_KEYS, :GLOBALID_KEY, :SYMBOL_KEYS_KEY, :WITH_INDIFFERENT_ACCESS_KEY
 
       def serialize_argument(argument)
         case argument
-        when *TYPE_WHITELIST
+        when *PERMITTED_TYPES
           argument
         when GlobalID::Identification
           convert_to_global_id_hash(argument)
@@ -88,7 +90,7 @@ module ActiveJob
         case argument
         when String
           GlobalID::Locator.locate(argument) || argument
-        when *TYPE_WHITELIST
+        when *PERMITTED_TYPES
           argument
         when Array
           argument.map { |arg| deserialize_argument(arg) }
@@ -145,7 +147,10 @@ module ActiveJob
       end
 
       def transform_symbol_keys(hash, symbol_keys)
-        hash.transform_keys do |key|
+        # NOTE: HashWithIndifferentAccess#transform_keys always
+        # returns stringified keys with indifferent access
+        # so we call #to_h here to ensure keys are symbolized.
+        hash.to_h.transform_keys do |key|
           if symbol_keys.include?(key)
             key.to_sym
           else

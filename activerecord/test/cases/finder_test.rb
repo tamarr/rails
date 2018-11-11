@@ -20,6 +20,7 @@ require "models/matey"
 require "models/dog"
 require "models/car"
 require "models/tyre"
+require "models/subscriber"
 
 class FinderTest < ActiveRecord::TestCase
   fixtures :companies, :topics, :entrants, :developers, :developers_projects, :posts, :comments, :accounts, :authors, :author_addresses, :customers, :categories, :categorizations, :cars
@@ -167,6 +168,7 @@ class FinderTest < ActiveRecord::TestCase
     assert_equal true, Topic.exists?(id: [1, 9999])
 
     assert_equal false, Topic.exists?(45)
+    assert_equal false, Topic.exists?(9999999999999999999999999999999)
     assert_equal false, Topic.exists?(Topic.new.id)
 
     assert_raise(NoMethodError) { Topic.exists?([1, 2]) }
@@ -211,15 +213,21 @@ class FinderTest < ActiveRecord::TestCase
     assert_equal false, relation.exists?(false)
   end
 
+  def test_exists_with_string
+    assert_equal false, Subscriber.exists?("foo")
+    assert_equal false, Subscriber.exists?("   ")
+
+    Subscriber.create!(id: "foo")
+    Subscriber.create!(id: "   ")
+
+    assert_equal true, Subscriber.exists?("foo")
+    assert_equal true, Subscriber.exists?("   ")
+  end
+
   def test_exists_passing_active_record_object_is_not_permitted
     assert_raises(ArgumentError) do
       Topic.exists?(Topic.new)
     end
-  end
-
-  def test_exists_returns_false_when_parameter_has_invalid_type
-    assert_equal false, Topic.exists?("foo")
-    assert_equal false, Topic.exists?(("9" * 53).to_i) # number that's bigger than int
   end
 
   def test_exists_does_not_select_columns_without_alias
@@ -244,6 +252,10 @@ class FinderTest < ActiveRecord::TestCase
 
     assert_equal false, Topic.first.replies.exists?(nil)
     assert_equal true, Topic.first.replies.exists?
+  end
+
+  def test_exists_with_empty_hash_arg
+    assert_equal true, Topic.exists?({})
   end
 
   # Ensure +exists?+ runs without an error by excluding distinct value.
@@ -371,7 +383,10 @@ class FinderTest < ActiveRecord::TestCase
   end
 
   def test_find_an_empty_array
-    assert_equal [], Topic.find([])
+    empty_array = []
+    result = Topic.find(empty_array)
+    assert_equal [], result
+    assert_not_same empty_array, result
   end
 
   def test_find_doesnt_have_implicit_ordering
@@ -463,6 +478,7 @@ class FinderTest < ActiveRecord::TestCase
     expected = topics(:first)
     expected.touch # PostgreSQL changes the default order if no order clause is used
     assert_equal expected, Topic.first
+    assert_equal expected, Topic.limit(5).first
   end
 
   def test_model_class_responds_to_first_bang
@@ -485,6 +501,7 @@ class FinderTest < ActiveRecord::TestCase
     expected = topics(:second)
     expected.touch # PostgreSQL changes the default order if no order clause is used
     assert_equal expected, Topic.second
+    assert_equal expected, Topic.limit(5).second
   end
 
   def test_model_class_responds_to_second_bang
@@ -507,6 +524,7 @@ class FinderTest < ActiveRecord::TestCase
     expected = topics(:third)
     expected.touch # PostgreSQL changes the default order if no order clause is used
     assert_equal expected, Topic.third
+    assert_equal expected, Topic.limit(5).third
   end
 
   def test_model_class_responds_to_third_bang
@@ -529,6 +547,7 @@ class FinderTest < ActiveRecord::TestCase
     expected = topics(:fourth)
     expected.touch # PostgreSQL changes the default order if no order clause is used
     assert_equal expected, Topic.fourth
+    assert_equal expected, Topic.limit(5).fourth
   end
 
   def test_model_class_responds_to_fourth_bang
@@ -551,6 +570,7 @@ class FinderTest < ActiveRecord::TestCase
     expected = topics(:fifth)
     expected.touch # PostgreSQL changes the default order if no order clause is used
     assert_equal expected, Topic.fifth
+    assert_equal expected, Topic.limit(5).fifth
   end
 
   def test_model_class_responds_to_fifth_bang
@@ -711,6 +731,14 @@ class FinderTest < ActiveRecord::TestCase
     assert_equal comments.limit(2).to_a.first, comments.limit(2).first
     assert_equal comments.limit(2).to_a.first(2), comments.limit(2).first(2)
     assert_equal comments.limit(2).to_a.first(3), comments.limit(2).first(3)
+  end
+
+  def test_first_have_determined_order_by_default
+    expected = [companies(:second_client), companies(:another_client)]
+    clients = Client.where(name: expected.map(&:name))
+
+    assert_equal expected, clients.first(2)
+    assert_equal expected, clients.limit(5).first(2)
   end
 
   def test_take_and_first_and_last_with_integer_should_return_an_array
@@ -1263,21 +1291,6 @@ class FinderTest < ActiveRecord::TestCase
     assert_raises(ActiveRecord::UnknownPrimaryKey) do
       Matey.find(1)
     end
-  end
-
-  def test_first_and_last_with_limit_for_order_without_primary_key
-    # While Topic.first should impose an ordering by primary key,
-    # Topic.limit(n).first should not
-
-    Topic.first.touch # PostgreSQL changes the default order if no order clause is used
-
-    assert_equal Topic.limit(1).to_a.first, Topic.limit(1).first
-    assert_equal Topic.limit(2).to_a.first, Topic.limit(2).first
-    assert_equal Topic.limit(2).to_a.first(2), Topic.limit(2).first(2)
-
-    assert_equal Topic.limit(1).to_a.last, Topic.limit(1).last
-    assert_equal Topic.limit(2).to_a.last, Topic.limit(2).last
-    assert_equal Topic.limit(2).to_a.last(2), Topic.limit(2).last(2)
   end
 
   def test_finder_with_offset_string

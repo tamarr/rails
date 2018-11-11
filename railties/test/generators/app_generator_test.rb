@@ -13,10 +13,11 @@ DEFAULT_APP_FILES = %w(
   config.ru
   app/assets/config/manifest.js
   app/assets/images
-  app/assets/javascripts
-  app/assets/javascripts/application.js
-  app/assets/javascripts/cable.js
-  app/assets/javascripts/channels
+  app/javascript
+  app/javascript/channels
+  app/javascript/channels/consumer.js
+  app/javascript/channels/index.js
+  app/javascript/packs/application.js
   app/assets/stylesheets
   app/assets/stylesheets/application.css
   app/channels/application_cable/channel.rb
@@ -37,7 +38,6 @@ DEFAULT_APP_FILES = %w(
   app/views/layouts/application.html.erb
   app/views/layouts/mailer.html.erb
   app/views/layouts/mailer.text.erb
-  bin/bundle
   bin/rails
   bin/rake
   bin/setup
@@ -106,7 +106,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_skip_bundle
-    assert_not_called(generator([destination_root], skip_bundle: true), :bundle_command) do
+    assert_not_called(generator([destination_root], skip_bundle: true, skip_webpack_install: true), :bundle_command) do
       quietly { generator.invoke_all }
       # skip_bundle is only about running bundle install, ensure the Gemfile is still
       # generated.
@@ -118,9 +118,9 @@ class AppGeneratorTest < Rails::Generators::TestCase
     run_generator
 
     assert_file("app/views/layouts/application.html.erb", /stylesheet_link_tag\s+'application', media: 'all', 'data-turbolinks-track': 'reload'/)
-    assert_file("app/views/layouts/application.html.erb", /javascript_include_tag\s+'application', 'data-turbolinks-track': 'reload'/)
+    assert_file("app/views/layouts/application.html.erb", /javascript_pack_tag\s+'application', 'data-turbolinks-track': 'reload'/)
     assert_file("app/assets/stylesheets/application.css")
-    assert_file("app/assets/javascripts/application.js")
+    assert_file("app/javascript/packs/application.js")
   end
 
   def test_application_job_file_present
@@ -211,21 +211,31 @@ class AppGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_new_application_doesnt_need_defaults
+    run_generator
     assert_no_file "config/initializers/new_framework_defaults_6_0.rb"
   end
 
   def test_new_application_load_defaults
     app_root = File.join(destination_root, "myfirstapp")
     run_generator [app_root]
+
     output = nil
 
     assert_file "#{app_root}/config/application.rb", /\s+config\.load_defaults #{Rails::VERSION::STRING.to_f}/
 
     Dir.chdir(app_root) do
-      output = `./bin/rails r "puts Rails.application.config.assets.unknown_asset_fallback"`
+      output = `SKIP_REQUIRE_WEBPACKER=true ./bin/rails r "puts Rails.application.config.assets.unknown_asset_fallback"`
     end
 
     assert_equal "false\n", output
+  end
+
+  def test_csp_initializer_include_connect_src_example
+    run_generator
+
+    assert_file "config/initializers/content_security_policy.rb" do |content|
+      assert_match(/#   policy\.connect_src/, content)
+    end
   end
 
   def test_app_update_keep_the_cookie_serializer_if_it_is_already_configured
@@ -298,10 +308,10 @@ class AppGeneratorTest < Rails::Generators::TestCase
 
   def test_app_update_does_not_generate_yarn_contents_when_bin_yarn_is_not_used
     app_root = File.join(destination_root, "myapp")
-    run_generator [app_root, "--skip-yarn"]
+    run_generator [app_root, "--skip-javascript"]
 
     stub_rails_application(app_root) do
-      generator = Rails::Generators::AppGenerator.new ["rails"], { update: true, skip_yarn: true }, { destination_root: app_root, shell: @shell }
+      generator = Rails::Generators::AppGenerator.new ["rails"], { update: true, skip_javascript: true }, { destination_root: app_root, shell: @shell }
       generator.send(:app_const)
       quietly { generator.send(:update_bin_files) }
 
@@ -493,7 +503,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
     if defined?(JRUBY_VERSION)
       assert_gem "activerecord-jdbcmysql-adapter"
     else
-      assert_gem "mysql2", "'>= 0.4.4', '< 0.6.0'"
+      assert_gem "mysql2", "'>= 0.4.4'"
     end
   end
 
@@ -560,7 +570,6 @@ class AppGeneratorTest < Rails::Generators::TestCase
     run_generator
 
     assert_gem "sass-rails"
-    assert_gem "uglifier"
   end
 
   def test_action_cable_redis_gems
@@ -602,48 +611,14 @@ class AppGeneratorTest < Rails::Generators::TestCase
     end
   end
 
-  def test_inclusion_of_javascript_runtime
-    run_generator
-    if defined?(JRUBY_VERSION)
-      assert_gem "therubyrhino"
-    elsif RUBY_PLATFORM =~ /mingw|mswin/
-      assert_gem "duktape"
-    else
-      assert_file "Gemfile", /# gem 'mini_racer', platforms: :ruby/
-    end
-  end
-
-  def test_rails_ujs_is_the_default_ujs_library
-    run_generator
-    assert_file "app/assets/javascripts/application.js" do |contents|
-      assert_match %r{^//= require rails-ujs}, contents
-    end
-  end
-
   def test_javascript_is_skipped_if_required
     run_generator [destination_root, "--skip-javascript"]
 
-    assert_no_file "app/assets/javascripts"
+    assert_no_file "app/javascript"
 
     assert_file "app/views/layouts/application.html.erb" do |contents|
       assert_match(/stylesheet_link_tag\s+'application', media: 'all' %>/, contents)
-      assert_no_match(/javascript_include_tag\s+'application' \%>/, contents)
-    end
-
-    assert_no_gem "coffee-rails"
-    assert_no_gem "uglifier"
-
-    assert_file "config/environments/production.rb" do |content|
-      assert_no_match(/config\.assets\.js_compressor = :uglifier/, content)
-    end
-  end
-
-  def test_coffeescript_is_skipped_if_required
-    run_generator [destination_root, "--skip-coffee"]
-
-    assert_file "Gemfile" do |content|
-      assert_no_match(/coffee-rails/, content)
-      assert_match(/uglifier/, content)
+      assert_no_match(/javascript_pack_tag\s+'application'/, contents)
     end
   end
 
@@ -745,7 +720,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_web_console_with_dev_option
-    run_generator [destination_root, "--dev"]
+    run_generator [destination_root, "--dev", "--skip-bundle"]
 
     assert_file "Gemfile" do |content|
       assert_match(/gem 'web-console',\s+github: 'rails\/web-console'/, content)
@@ -763,17 +738,23 @@ class AppGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_generation_runs_bundle_install
-    assert_generates_with_bundler
+    generator([destination_root], skip_webpack_install: true)
+
+    assert_bundler_command_called("install")
   end
 
   def test_dev_option
-    assert_generates_with_bundler dev: true
+    generator([destination_root], dev: true, skip_webpack_install: true)
+
+    assert_bundler_command_called("install")
     rails_path = File.expand_path("../../..", Rails.root)
     assert_file "Gemfile", /^gem\s+["']rails["'],\s+path:\s+["']#{Regexp.escape(rails_path)}["']$/
   end
 
   def test_edge_option
-    assert_generates_with_bundler edge: true
+    generator([destination_root], edge: true, skip_webpack_install: true)
+
+    assert_bundler_command_called("install")
     assert_file "Gemfile", %r{^gem\s+["']rails["'],\s+github:\s+["']#{Regexp.escape("rails/rails")}["']$}
   end
 
@@ -782,23 +763,18 @@ class AppGeneratorTest < Rails::Generators::TestCase
     assert_gem "spring"
   end
 
+  def test_bundler_binstub
+    generator([destination_root], skip_webpack_install: true)
+
+    assert_bundler_command_called("binstubs bundler")
+  end
+
   def test_spring_binstubs
     jruby_skip "spring doesn't run on JRuby"
-    command_check = -> command do
-      @binstub_called ||= 0
 
-      case command
-      when "install"
-        # Called when running bundle, we just want to stub it so nothing to do here.
-      when "exec spring binstub --all"
-        @binstub_called += 1
-        assert_equal 1, @binstub_called, "exec spring binstub --all expected to be called once, but was called #{@install_called} times."
-      end
-    end
+    generator([destination_root], skip_webpack_install: true)
 
-    generator.stub :bundle_command, command_check do
-      quietly { generator.invoke_all }
-    end
+    assert_bundler_command_called("exec spring binstub --all")
   end
 
   def test_spring_no_fork
@@ -818,27 +794,30 @@ class AppGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_spring_with_dev_option
-    run_generator [destination_root, "--dev"]
+    run_generator [destination_root, "--dev", "--skip-bundle"]
 
     assert_no_gem "spring"
   end
 
-  def test_webpack_option
+  def test_skip_javascript_option
     command_check = -> command, *_ do
       @called ||= 0
       if command == "webpacker:install"
         @called += 1
-        assert_equal 1, @called, "webpacker:install expected to be called once, but was called #{@called} times."
+        assert_equal 0, @called, "webpacker:install expected not to be called, but was called #{@called} times."
       end
     end
 
-    generator([destination_root], webpack: "webpack").stub(:rails_command, command_check) do
+    generator([destination_root], skip_javascript: true).stub(:rails_command, command_check) do
       generator.stub :bundle_command, nil do
         quietly { generator.invoke_all }
       end
     end
 
-    assert_gem "webpacker"
+    assert_no_gem "webpacker"
+    assert_file "config/initializers/content_security_policy.rb" do |content|
+      assert_no_match(/policy\.connect_src/, content)
+    end
   end
 
   def test_webpack_option_with_js_framework
@@ -860,6 +839,22 @@ class AppGeneratorTest < Rails::Generators::TestCase
         quietly { generator.invoke_all }
       end
     end
+
+    assert_gem "webpacker"
+  end
+
+  def test_skip_webpack_install
+    command_check = -> command do
+      if command == "webpacker:install"
+        assert false, "webpacker:install expected not to be called."
+      end
+    end
+
+    generator([destination_root], skip_webpack_install: true).stub(:rails_command, command_check) do
+      quietly { generator.invoke_all }
+    end
+
+    assert_gem "webpacker"
   end
 
   def test_generator_if_skip_turbolinks_is_given
@@ -869,13 +864,13 @@ class AppGeneratorTest < Rails::Generators::TestCase
     assert_file "app/views/layouts/application.html.erb" do |content|
       assert_no_match(/data-turbolinks-track/, content)
     end
-    assert_file "app/assets/javascripts/application.js" do |content|
+    assert_file "app/javascript/packs/application.js" do |content|
       assert_no_match(/turbolinks/, content)
     end
   end
 
   def test_bootsnap
-    run_generator
+    run_generator [destination_root, "--no-skip-bootsnap"]
 
     unless defined?(JRUBY_VERSION)
       assert_gem "bootsnap"
@@ -900,7 +895,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_bootsnap_with_dev_option
-    run_generator [destination_root, "--dev"]
+    run_generator [destination_root, "--dev", "--skip-bundle"]
 
     assert_no_gem "bootsnap"
     assert_file "config/boot.rb" do |content|
@@ -968,7 +963,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
 
   def test_after_bundle_callback
     path = "http://example.org/rails_template"
-    template = %{ after_bundle { run 'echo ran after_bundle' } }.dup
+    template = +%{ after_bundle { run 'echo ran after_bundle' } }
     template.instance_eval "def read; self; end" # Make the string respond to read
 
     check_open = -> *args do
@@ -976,7 +971,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
       template
     end
 
-    sequence = ["git init", "install", "exec spring binstub --all", "echo ran after_bundle"]
+    sequence = ["git init", "install", "binstubs bundler", "exec spring binstub --all", "webpacker:install", "echo ran after_bundle"]
     @sequence_step ||= 0
     ensure_bundler_first = -> command, options = nil do
       assert_equal sequence[@sequence_step], command, "commands should be called in sequence #{sequence}"
@@ -993,7 +988,7 @@ class AppGeneratorTest < Rails::Generators::TestCase
       end
     end
 
-    assert_equal 4, @sequence_step
+    assert_equal 6, @sequence_step
   end
 
   def test_gitignore
@@ -1063,18 +1058,14 @@ class AppGeneratorTest < Rails::Generators::TestCase
       end
     end
 
-    def assert_generates_with_bundler(options = {})
-      generator([destination_root], options)
-
+    def assert_bundler_command_called(target_command)
       command_check = -> command do
-        @install_called ||= 0
+        @command_called ||= 0
 
         case command
-        when "install"
-          @install_called += 1
-          assert_equal 1, @install_called, "install expected to be called once, but was called #{@install_called} times"
-        when "exec spring binstub --all"
-          # Called when running tests with spring, let through unscathed.
+        when target_command
+          @command_called += 1
+          assert_equal 1, @command_called, "#{command} expected to be called once, but was called #{@command_called} times."
         end
       end
 
