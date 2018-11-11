@@ -19,11 +19,11 @@
     -
       name: Active Record Validations
       url: active_record_validations.html
-      description: This guide covers how you can use Active Record validations.
+      description: מדריך זה מכסה כיצד להשתמשת בולידציות של Active Record.
     -
       name: Active Record Callbacks
       url: active_record_callbacks.html
-      description: This guide covers how you can use Active Record callbacks.
+      description: מדריך זה מכסה כיצד להשתמש בפונקציות משוב (callbacks) של Active Record.
     -
       name: Active Record Associations
       url: association_basics.html
