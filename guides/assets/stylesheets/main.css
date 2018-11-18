@@ -7,10 +7,10 @@
 /* General
 --------------------------------------- */
 
-.right {float: right; margin-left: 1em;}
 .left {float: left; margin-right: 1em;}
+.right {float: right; margin-left: 1em;}
 @media screen and (max-width: 480px) {
-  .right, .left { float: none; }
+  .left, .right { float: none; }
 }
 .small {font-size: smaller;}
 .large {font-size: larger;}
@@ -23,7 +23,7 @@ ol { list-style-type: decimal; }
 
 dl { margin: 0 0 1.5em 0; }
 dl dt { font-weight: bold; }
-dd { margin-right: 1.5em;}
+dd { margin-left: 1.5em;}
 
 pre, code {
   font-size: 1em;
@@ -103,11 +103,10 @@ body {
   line-height: 1.5em;
   background: #fff;
   color: #999;
-  direction: rtl;
 }
 
 .wrapper {
-  text-align: right;
+  text-align: left;
   margin: 0 auto;
   max-width: 960px;
   padding: 0 1em;
@@ -117,7 +116,7 @@ body {
   display: inline-block;
   border-top: 1px solid rgba(255,255,255,.5);
   background: #751913;
-  background: -webkit-gradient(linear, right top, right bottom, from(#c52f24), to(#751913));
+  background: -webkit-gradient(linear, left top, left bottom, from(#c52f24), to(#751913));
   background: -webkit-linear-gradient(top, #c52f24, #751913);
   background: -moz-linear-gradient(top, #c52f24, #751913);
   background: -ms-linear-gradient(top, #c52f24, #751913);
@@ -140,7 +139,7 @@ body {
 .red-button:active {
   border-top: none;
   padding-top: 10px;
-  background: -webkit-gradient(linear, right top, right bottom, from(#751913), to(#c52f24));
+  background: -webkit-gradient(linear, left top, left bottom, from(#751913), to(#c52f24));
   background: -webkit-linear-gradient(top, #751913, #c52f24);
   background: -moz-linear-gradient(top, #751913, #c52f24);
   background: -ms-linear-gradient(top, #751913, #c52f24);
@@ -195,8 +194,8 @@ body {
     top: .5em;
     z-index: 20;
     margin: 0 auto;
-    right: 0;
     left: 0;
+    right: 0;
     width: 20em;
   }
 
@@ -245,20 +244,20 @@ body {
 
 #mainCol {
   max-width: 630px;
-  margin-right: 2em;
+  margin-left: 2em;
 }
 
 #subCol {
   position: absolute;
   z-index: 0;
   top: 21px;
-  left: 0;
+  right: 0;
   background: #FFF;
   padding: 1em 1.5em 1em 1.25em;
   width: 17em;
   font-size: 0.9285em;
   line-height: 1.3846em;
-  margin-left: 1em;
+  margin-right: 1em;
 }
 
 
@@ -266,9 +265,9 @@ body {
   #subCol {
     position: static;
     width: inherit;
-    margin-right: -1em;
-    margin-left: 0;
-    padding-left: 1.25em;
+    margin-left: -1em;
+    margin-right: 0;
+    padding-right: 1.25em;
   }
 }
 
@@ -277,19 +276,19 @@ body {
   background: #222 url(../images/footer_tile.gif) repeat-x;
 }
 #footer .wrapper {
-  padding-right: 1em;
+  padding-left: 1em;
   max-width: 960px;
 }
 
-#header .wrapper, #topNav .wrapper, #feature .wrapper {padding-right: 1em; max-width: 960px;}
-#feature .wrapper {max-width: 640px; padding-left: 23em; position: relative; z-index: 0;}
+#header .wrapper, #topNav .wrapper, #feature .wrapper {padding-left: 1em; max-width: 960px;}
+#feature .wrapper {max-width: 640px; padding-right: 23em; position: relative; z-index: 0;}
 
 @media screen and (max-width: 960px) {
-  #container .wrapper { padding-left: 23em; }
+  #container .wrapper { padding-right: 23em; }
 }
 
 @media screen and (max-width: 800px) {
-  #feature .wrapper, #container .wrapper { padding-left: 0; }
+  #feature .wrapper, #container .wrapper { padding-right: 0; }
 }
 
 /* Links
@@ -314,7 +313,7 @@ a, a:link, a:visited {
   margin: 0;
   padding: 0;
   list-style: none;
-  float: left;
+  float: right;
   margin-top: 1.5em;
   font-size: 1.2857em;
 }
@@ -333,27 +332,27 @@ a, a:link, a:visited {
 }
 
 .guides-index .guides-index-item {
-  background: #980905 url(../images/nav_arrow.gif) no-repeat left top;
-  padding-left: 1em;
+  background: #980905 url(../images/nav_arrow.gif) no-repeat right top;
+  padding-right: 1em;
   position: relative;
   z-index: 15;
   padding-bottom: 0.125em;
 }
 
 .guides-index:hover .guides-index-item, .guides-index .guides-index-item:hover {
-  background-position: left -81px;
+  background-position: right -81px;
   text-decoration: underline !important;
 }
 
 @media screen and (min-width: 481px) {
   .nav {
-    float: left;
+    float: right;
     margin-top: 1.5em;
     font-size: 1.2857em;
   }
   .nav>li {
     display: inline;
-    margin-right: 0.5em;
+    margin-left: 0.5em;
   }
   .guides-index.guides-index-small {
     display: none;
@@ -391,7 +390,7 @@ a, a:link, a:visited {
   }
   .guides-index-small .guides-index-item {
     font: inherit;
-    padding-right: .75em;
+    padding-left: .75em;
     font-size: .95em;
     background-position: 96% 16px;
     -webkit-appearance: none;
@@ -411,7 +410,7 @@ a, a:link, a:visited {
   position: absolute;
   z-index: 10;
   top: -0.25em;
-  left: 0;
+  right: 0;
   padding-top: 2em;
 }
 
@@ -534,11 +533,11 @@ h6 {
   margin: 0 2em 2em 0;
 }
 
-#topNav strong {color: #999; margin-left: 0.5em;}
+#topNav strong {color: #999; margin-right: 0.5em;}
 #topNav strong a {color: #FFF;}
 
 #header h1 {
-  float: right;
+  float: left;
   background: url(../images/rails_guides_logo_1x.png) no-repeat;
   width: 297px;
   text-indent: -9999em;
@@ -582,10 +581,10 @@ only screen and (                min-resolution: 2dppx) {
   }
 }
 
-#feature ul {margin-right: 0;}
+#feature ul {margin-left: 0;}
 #feature ul li {
   list-style: none;
-  background: url(../images/check_bullet.gif) no-repeat right 0.5em;
+  background: url(../images/check_bullet.gif) no-repeat left 0.5em;
   padding: 0.5em 1.75em 0.5em 1.75em;
   font-size: 1.1428em;
   font-weight: bold;
@@ -595,9 +594,9 @@ only screen and (                min-resolution: 2dppx) {
   padding: 0.25em 0 1em;
   border-bottom: 1px solid #CCC;
   margin-bottom: 1em;
-  margin-right: 0;
-  /*padding-right: 28px;*/
-  padding-right: 0;
+  margin-left: 0;
+  /*padding-left: 28px;*/
+  padding-left: 0;
 }
 
 #mainCol dt, #subCol dt {
@@ -613,26 +612,26 @@ only screen and (                min-resolution: 2dppx) {
 }
 
 #mainCol dd.work-in-progress, #subCol dd.work-in-progress {
-  background: #fff9d8 url(../images/tab_yellow.gif) no-repeat right top;
+  background: #fff9d8 url(../images/tab_yellow.gif) no-repeat left top;
   border: none;
   padding: 1.25em 1em 1.25em 48px;
-  margin-right: 0;
+  margin-left: 0;
   margin-top: 0.25em;
 }
 
 #mainCol dd.kindle, #subCol dd.kindle {
-  background: #d5e9f6 url(../images/tab_info.gif) no-repeat right top;
+  background: #d5e9f6 url(../images/tab_info.gif) no-repeat left top;
   border: none;
   padding: 1.25em 1em 1.25em 48px;
-  margin-right: 0;
+  margin-left: 0;
   margin-top: 0.25em;
 }
 
 #mainCol div.warning, #subCol dd.warning {
-  background: #f9d9d8 url(../images/tab_red.gif) no-repeat right top;
+  background: #f9d9d8 url(../images/tab_red.gif) no-repeat left top;
   border: none;
   padding: 1.25em 1.25em 0.25em 48px;
-  margin-right: 0;
+  margin-left: 0;
   margin-top: 0.25em;
 }
 
@@ -642,12 +641,12 @@ only screen and (                min-resolution: 2dppx) {
 #subCol .chapters li {margin-bottom: 0.75em;}
 #subCol h3.chapter {margin-top: 0.25em;}
 #subCol h3.chapter img {vertical-align: text-bottom;}
-#subCol .chapters ul {margin-right: 0; margin-top: 0.5em;}
+#subCol .chapters ul {margin-left: 0; margin-top: 0.5em;}
 #subCol .chapters ul li {
   list-style: none;
   padding: 0 0 0 1em;
-  background: url(../images/bullet.gif) no-repeat right 0.45em;
-  margin-right: 0;
+  background: url(../images/bullet.gif) no-repeat left 0.45em;
+  margin-left: 0;
   font-size: 1em;
   font-weight: normal;
 }
@@ -655,26 +654,26 @@ only screen and (                min-resolution: 2dppx) {
 #subCol li ul, li ol { margin:0 1.5em; }
 
 div.code_container {
-  background: #EEE url(../images/tab_grey.gif) no-repeat right top;
+  background: #EEE url(../images/tab_grey.gif) no-repeat left top;
   padding: 0.25em 1em 0.5em 48px;
 }
 
 .note {
-  background: #fff9d8 url(../images/tab_note.gif) no-repeat right top;
+  background: #fff9d8 url(../images/tab_note.gif) no-repeat left top;
   border: none;
   padding: 1em 1em 0.25em 48px;
   margin: 0.25em 0 1.5em 0;
 }
 
 .info {
-  background: #d5e9f6 url(../images/tab_info.gif) no-repeat right top;
+  background: #d5e9f6 url(../images/tab_info.gif) no-repeat left top;
   border: none;
   padding: 1em 1em 0.25em 48px;
   margin: 0.25em 0 1.5em 0;
 }
 
 #mainCol div.todo {
-  background: #fff9d8 url(../images/tab_yellow.gif) no-repeat right top;
+  background: #fff9d8 url(../images/tab_yellow.gif) no-repeat left top;
   border: none;
   padding: 1em 1em 0.25em 48px;
   margin: 0.25em 0 1.5em 0;
@@ -686,9 +685,9 @@ div.code_container {
 
 #mainCol ul li {
   list-style:none;
-  background: url(../images/grey_bullet.gif) no-repeat right 0.5em;
-  padding-right: 1em;
-  margin-right: 0;
+  background: url(../images/grey_bullet.gif) no-repeat left 0.5em;
+  padding-left: 1em;
+  margin-left: 0;
 }
 
 #subCol .content {
@@ -734,7 +733,7 @@ div.important p, div.caution p, div.warning p, div.note p, div.info p {
 
 #edge-badge {
   position: fixed;
-  left: 0px;
+  right: 0px;
   top: 0px;
   z-index: 100;
   border: none;
@@ -747,13 +746,13 @@ div.important p, div.caution p, div.warning p, div.note p, div.info p {
 @media only screen and (max-width: 767px) {
   table.responsive { margin-bottom: 0; }
 
-  .pinned { position: absolute; right: 0; top: 0; background: #fff; width: 35%; overflow: hidden; overflow-x: scroll; border-left: 1px solid #ccc; border-right: 1px solid #ccc; }
-  .pinned table { border-left: none; border-right: none; width: 100%; }
+  .pinned { position: absolute; left: 0; top: 0; background: #fff; width: 35%; overflow: hidden; overflow-x: scroll; border-right: 1px solid #ccc; border-left: 1px solid #ccc; }
+  .pinned table { border-right: none; border-left: none; width: 100%; }
   .pinned table th, .pinned table td { white-space: nowrap; }
   .pinned td:last-child { border-bottom: 0; }
 
-  div.table-wrapper { position: relative; margin-bottom: 20px; overflow: hidden; border-left: 1px solid #ccc; }
-  div.table-wrapper div.scrollable table { margin-right: 35%; }
+  div.table-wrapper { position: relative; margin-bottom: 20px; overflow: hidden; border-right: 1px solid #ccc; }
+  div.table-wrapper div.scrollable table { margin-left: 35%; }
   div.table-wrapper div.scrollable { overflow: scroll; overflow-y: hidden; }
 
   table.responsive td, table.responsive th { position: relative; white-space: nowrap; overflow: hidden; }

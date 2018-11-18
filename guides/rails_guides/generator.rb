@@ -117,7 +117,10 @@ module RailsGuides
 
       def copy_assets
         FileUtils.cp_r(Dir.glob("#{@guides_dir}/assets/*"), @output_dir)
-        FileUtils.rm(Dir.glob("#{@output_dir}/assets/**.#{@rtl ? 'ltr' : 'rtl'}.css"))
+        if (@rtl)
+          FileUtils.rm(Dir.glob("#{@output_dir}/stylesheets/main.css"))
+          FileUtils.mv("#{@output_dir}/stylesheets/main.rtl.css", "#{@output_dir}/stylesheets/main.css")
+        end
       end
 
       def output_file_for(guide)
