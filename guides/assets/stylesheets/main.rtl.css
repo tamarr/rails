@@ -613,7 +613,7 @@ only screen and (                min-resolution: 2dppx) {
 }
 
 #mainCol dd.work-in-progress, #subCol dd.work-in-progress {
-  background: #fff9d8 url(../images/tab_yellow.gif) no-repeat right top;
+  background: #fff9d8 url(../images/tab_yellow.gif) no-repeat left top;
   border: none;
   padding: 1.25em 1em 1.25em 48px;
   margin-right: 0;
@@ -621,7 +621,7 @@ only screen and (                min-resolution: 2dppx) {
 }
 
 #mainCol dd.kindle, #subCol dd.kindle {
-  background: #d5e9f6 url(../images/tab_info.gif) no-repeat right top;
+  background: #d5e9f6 url(../images/tab_info.gif) no-repeat left top;
   border: none;
   padding: 1.25em 1em 1.25em 48px;
   margin-right: 0;
@@ -629,7 +629,7 @@ only screen and (                min-resolution: 2dppx) {
 }
 
 #mainCol div.warning, #subCol dd.warning {
-  background: #f9d9d8 url(../images/tab_red.gif) no-repeat right top;
+  background: #f9d9d8 url(../images/tab_red.gif) no-repeat left top;
   border: none;
   padding: 1.25em 1.25em 0.25em 48px;
   margin-right: 0;
@@ -734,7 +734,7 @@ div.important p, div.caution p, div.warning p, div.note p, div.info p {
 
 #edge-badge {
   position: fixed;
-  left: 0px;
+  right: 0px;
   top: 0px;
   z-index: 100;
   border: none;
