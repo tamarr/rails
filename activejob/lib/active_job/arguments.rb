@@ -14,18 +14,18 @@ module ActiveJob
   end
 
   # Raised when an unsupported argument type is set as a job argument. We
-  # currently support NilClass, Integer, Float, String, TrueClass, FalseClass,
-  # BigDecimal, and objects that can be represented as GlobalIDs (ex: Active Record).
+  # currently support String, Integer, Float, NilClass, TrueClass, FalseClass,
+  # BigDecimal, Symbol, Date, Time, DateTime, ActiveSupport::TimeWithZone,
+  # ActiveSupport::Duration, Hash, ActiveSupport::HashWithIndifferentAccess,
+  # Array or GlobalID::Identification instances, although this can be extended
+  # by adding custom serializers.
   # Raised if you set the key for a Hash something else than a string or
   # a symbol. Also raised when trying to serialize an object which can't be
-  # identified with a Global ID - such as an unpersisted Active Record model.
+  # identified with a GlobalID - such as an unpersisted Active Record model.
   class SerializationError < ArgumentError; end
 
   module Arguments
     extend self
-    # :nodoc:
-    PERMITTED_TYPES = [ NilClass, String, Integer, Float, BigDecimal, TrueClass, FalseClass ]
-
     # Serializes a set of arguments. Intrinsic types that can safely be
     # serialized without mutation are returned as-is. Arrays/Hashes are
     # serialized element by element. All other types are serialized using
@@ -47,6 +47,8 @@ module ActiveJob
     private
 
       # :nodoc:
+      PERMITTED_TYPES = [ NilClass, String, Integer, Float, BigDecimal, TrueClass, FalseClass ]
+      # :nodoc:
       GLOBALID_KEY = "_aj_globalid"
       # :nodoc:
       SYMBOL_KEYS_KEY = "_aj_symbol_keys"
@@ -62,7 +64,7 @@ module ActiveJob
         OBJECT_SERIALIZER_KEY, OBJECT_SERIALIZER_KEY.to_sym,
         WITH_INDIFFERENT_ACCESS_KEY, WITH_INDIFFERENT_ACCESS_KEY.to_sym,
       ]
-      private_constant :RESERVED_KEYS, :GLOBALID_KEY, :SYMBOL_KEYS_KEY, :WITH_INDIFFERENT_ACCESS_KEY
+      private_constant :PERMITTED_TYPES, :RESERVED_KEYS, :GLOBALID_KEY, :SYMBOL_KEYS_KEY, :WITH_INDIFFERENT_ACCESS_KEY
 
       def serialize_argument(argument)
         case argument
