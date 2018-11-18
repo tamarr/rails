@@ -645,7 +645,7 @@ only screen and (                min-resolution: 2dppx) {
 #subCol .chapters ul {margin-right: 0; margin-top: 0.5em;}
 #subCol .chapters ul li {
   list-style: none;
-  padding: 0 0 0 1em;
+  padding: 0 1em 0 0;
   background: url(../images/bullet.gif) no-repeat right 0.45em;
   margin-right: 0;
   font-size: 1em;
@@ -656,27 +656,27 @@ only screen and (                min-resolution: 2dppx) {
 
 div.code_container {
   background: #EEE url(../images/tab_grey.gif) no-repeat right top;
-  padding: 0.25em 1em 0.5em 48px;
+  padding: 0.25em 48px 0.5em 1em;
 }
 
 .note {
   background: #fff9d8 url(../images/tab_note.gif) no-repeat right top;
   border: none;
-  padding: 1em 1em 0.25em 48px;
+  padding: 1em 48px 0.25em 1em;
   margin: 0.25em 0 1.5em 0;
 }
 
 .info {
   background: #d5e9f6 url(../images/tab_info.gif) no-repeat right top;
   border: none;
-  padding: 1em 1em 0.25em 48px;
+  padding: 1em 48px 0.25em 1em;
   margin: 0.25em 0 1.5em 0;
 }
 
 #mainCol div.todo {
   background: #fff9d8 url(../images/tab_yellow.gif) no-repeat right top;
   border: none;
-  padding: 1em 1em 0.25em 48px;
+  padding: 1em 48px 0.25em 1em;
   margin: 0.25em 0 1.5em 0;
 }
 

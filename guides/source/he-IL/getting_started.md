@@ -3,19 +3,18 @@
 איך להתחיל Rails
 ==========================
 
-This guide covers getting up and running with Ruby on Rails.
+מדריך זה מכסה כיצד להתחיל עם רובי און ריילס.
 
-After reading this guide, you will know:
+לאחר קריאת מדריך זה תדעו:
 
-* How to install Rails, create a new Rails application, and connect your
-  application to a database.
-* The general layout of a Rails application.
-* The basic principles of MVC (Model, View, Controller) and RESTful design.
-* How to quickly generate the starting pieces of a Rails application.
+* כיצד להתקין ריילס, ליצור אפליקצית ריילס חדשה ולחבר את האפליקציה לבסיס הנתונים.
+* את המבנה הכללי של אפליקצית ריילס.
+* את העקרונות הבסיסיים של MVC (Model, View, Controller) וארכיטקטורת RESTful.
+* כיצד לייצר במהירות את החלקים הראשוניים של אפליקצית ריילס.
 
 --------------------------------------------------------------------------------
 
-Guide Assumptions
+הנחות יסוד של המדריך
 -----------------
 
 This guide is designed for beginners who want to get started with a Rails
@@ -34,7 +33,7 @@ Be aware that some resources, while still excellent, cover versions of Ruby as o
 1.6, and commonly 1.8, and will not include some syntax that you will see in day-to-day
 development with Rails.
 
-What is Rails?
+מה זה ריילס?
 --------------
 
 Rails is a web application development framework written in the Ruby programming language.
@@ -61,7 +60,7 @@ The Rails philosophy includes two major guiding principles:
   things in a web application, and defaults to this set of conventions, rather than
   require that you specify minutiae through endless configuration files.
 
-Creating a New Rails Project
+יצירת פרויקט חדש
 ----------------------------
 The best way to read this guide is to follow it step by step. All steps are
 essential to run this example application and no additional code or steps are
@@ -75,7 +74,7 @@ TIP: The examples below use `$` to represent your terminal prompt in a UNIX-like
 though it may have been customized to appear differently. If you are using Windows,
 your prompt will look something like `c:\source_code>`
 
-### Installing Rails
+### איך להתקין ריילס
 
 Before you install Rails, you should check to make sure that your system has the
 proper prerequisites installed. These include Ruby and SQLite3.
@@ -128,7 +127,7 @@ $ rails --version
 
 If it says something like "Rails 5.1.1", you are ready to continue.
 
-### Creating the Blog Application
+### כיצד ליצור אפליקצית בלוג
 
 Rails comes with a number of scripts called generators that are designed to make
 your development life easier by creating everything that's necessary to start
@@ -192,7 +191,7 @@ Hello, Rails!
 To begin with, let's get some text up on screen quickly. To do this, you need to
 get your Rails application server running.
 
-### Starting up the Web Server
+### להתחיל את שרת הווב (Web Server)
 
 You actually have a functional Rails application already. To see it, you need to
 start a web server on your development machine. You can do this by running the
