@@ -203,7 +203,7 @@ module RailsGuides
       def check_fragment_identifiers(html, anchors)
         html.scan(/<a\s+href="#([^"]+)/).flatten.each do |fragment_identifier|
           next if fragment_identifier == "mainCol" # in layout, jumps to some DIV
-          unless anchors.member?(fragment_identifier)
+          unless anchors.member?(CGI.unescape(fragment_identifier))
             guess = anchors.min { |a, b|
               Levenshtein.distance(fragment_identifier, a) <=> Levenshtein.distance(fragment_identifier, b)
             }
