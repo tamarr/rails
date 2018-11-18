@@ -17,13 +17,14 @@ module RailsGuides
   class Generator
     GUIDES_RE = /\.(?:erb|md)\z/
 
-    def initialize(edge:, version:, all:, only:, kindle:, language:)
+    def initialize(edge:, version:, all:, only:, kindle:, language:, rtl: false)
       @edge     = edge
       @version  = version
       @all      = all
       @only     = only
       @kindle   = kindle
       @language = language
+      @rtl      = rtl
 
       if @kindle
         check_for_kindlegen
@@ -116,6 +117,7 @@ module RailsGuides
 
       def copy_assets
         FileUtils.cp_r(Dir.glob("#{@guides_dir}/assets/*"), @output_dir)
+        FileUtils.rm(Dir.glob("#{@output_dir}/assets/**.#{@rtl ? 'ltr' : 'rtl'}.css"))
       end
 
       def output_file_for(guide)
